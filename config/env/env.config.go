@@ -9,11 +9,12 @@ import (
 )
 
 
-func load() {
+func Load() {
 	err:=godotenv.Load()
 	if err != nil{
 		fmt.Println( "error while loading the dotenv ,",err)
 	}
+	fmt.Println("Sucessfully loaded the env")
 }
 
 func init(){
