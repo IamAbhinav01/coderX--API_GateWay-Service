@@ -1,7 +1,14 @@
 package main
 
-import "Coderx/config/env"
+import (
+	"Coderx/app"
+	"fmt"
+)
 
 func main() {
-	env.Load()
+	application := app.NewApplication()
+
+	if err := application.Run(); err != nil {
+		fmt.Println("Error while initialising the server:", err)
+	}
 }
