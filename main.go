@@ -1,7 +1,14 @@
 package main
 
-import "fmt"
+import (
+	"Coderx/app"
+	"fmt"
+)
 
 func main() {
-	fmt.Println("Hello  world")
+	application := app.NewApplication()
+
+	if err := application.Run(); err != nil {
+		fmt.Println("Error while initialising the server:", err)
+	}
 }
