@@ -1,12 +1,17 @@
 package router
 
-import "github.com/go-chi/chi/v5"
+import (
+	"Coderx/controllers"
+	"github.com/go-chi/chi/v5"
+)
 
-func SetUpRouter() *chi.Mux{
+func SetUpRouter(userController *controllers.UserController) *chi.Mux {
 
 	router := chi.NewRouter()
 
-	router.Route("/api/v1",func(r chi.Router) {
-		
+	router.Route("/api/v1", func(r chi.Router) {
+		RegisterUserRoutes(r, userController)
 	})
+
+	return router
 }

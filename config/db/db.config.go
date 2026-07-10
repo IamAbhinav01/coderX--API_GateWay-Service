@@ -17,19 +17,21 @@ func InitDB() (*sql.DB, error){
 	cfg.DBName = env.GetString("DBName")
 
 
-	DB,err:=sql.Open("mysql",cfg.FormatDSN())
+	DB, err := sql.Open("mysql", cfg.FormatDSN())
 
-	if err != nil{
-		fmt.Println("Error in initialsing database")
+	if err != nil {
+		fmt.Println("Error initializing database:", err)
+		return nil, err
 	}
 
-	pingErr:=DB.Ping()
+	pingErr := DB.Ping()
 
-	if pingErr != nil{
-		fmt.Print("Error connecting to database")
+	if pingErr != nil {
+		fmt.Println("Error connecting to database:", pingErr)
+		return nil, pingErr
 	}
 
-	fmt.Println("Connected to database")
+	fmt.Println("Connected to database successfully")
 
-	return DB,nil
+	return DB, nil
 }
