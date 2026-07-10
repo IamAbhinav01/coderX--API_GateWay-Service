@@ -4,6 +4,7 @@ import (
 	"Coderx/DB/repositories"
 	"Coderx/config/db"
 	"Coderx/config/env"
+	"Coderx/controllers"
 	"Coderx/services"
 	"fmt"
 	"net/http"
@@ -33,10 +34,9 @@ func (app *Application) Run() error{
 
 	user_repository := repositories.NewUserRepository(DB)
 	user_service := services.NewService(user_repository)
-	fmt.Println("user service : ",user_service)
+	user_controller := controllers.NewController(user_service)
+	fmt.Println("user controller : ",user_controller)
 
-
-	
 	server := http.Server{
 		Addr: app.Config,
 		Handler: http.NewServeMux(),
