@@ -1,8 +1,10 @@
 package app
 
 import (
+	"Coderx/DB/repositories"
 	"Coderx/config/db"
 	"Coderx/config/env"
+	"Coderx/services"
 	"fmt"
 	"net/http"
 	"time"
@@ -29,6 +31,12 @@ func (app *Application) Run() error{
 
 	fmt.Println("Databse Initialised ",DB)
 
+	user_repository := repositories.NewUserRepository(DB)
+	user_service := services.NewService(user_repository)
+	fmt.Println("user service : ",user_service)
+
+
+	
 	server := http.Server{
 		Addr: app.Config,
 		Handler: http.NewServeMux(),

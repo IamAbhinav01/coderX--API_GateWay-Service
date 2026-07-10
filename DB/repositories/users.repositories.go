@@ -6,7 +6,7 @@ import (
 )
 
 type UserRepository interface {
-	SignUp(name string,email string,password string)(int,error)
+	Create(_name string,email string,password string)(int,error)
 }
 
 type UserRepositoryImpl struct {
@@ -19,10 +19,10 @@ func NewUserRepository( _db *sql.DB)UserRepository{
 	}
 }
 
-func (op UserRepositoryImpl) SignUp(name string,email string,password string) (int,error){
+func (op *UserRepositoryImpl) Create(_name string,email string,password string) (int,error){
 
 	query := `INSERT INTO users (name,email,password) VALUES (?,?,?)`
-	output,err := op.db.Exec(query,name,email,password)
+	output,err := op.db.Exec(query,_name,email,password)
 
 	if err!= nil{
 		fmt.Printf("Error happend while signup user to database --ERROR FOUND ON REPOSITORY LAYER")
