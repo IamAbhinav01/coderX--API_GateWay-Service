@@ -22,7 +22,6 @@ func NewController(_user_service services.UserService) *UserController{
 
 func (controller *UserController) SignUp(w http.ResponseWriter, r *http.Request) {
 
-
 	var payload dtos.SignupRequestDTO
 	err:= json.DecodeFROMJSON(r,&payload)
 
