@@ -4,7 +4,6 @@ import (
 	"Coderx/dtos"
 	"Coderx/services"
 	"Coderx/utils/formatters"
-	"Coderx/utils/json"
 
 	"net/http"
 	"strings"
@@ -22,15 +21,9 @@ func NewController(_user_service services.UserService) *UserController{
 
 func (controller *UserController) SignUp(w http.ResponseWriter, r *http.Request) {
 
-	var payload dtos.SignupRequestDTO
-	err:= json.DecodeFROMJSON(r,&payload)
+	payload := r.Context().Value("payload").(dtos.SignupRequestDTO)
 
-	if err!= nil{
-		formatters.ErrorResponse(w,http.StatusBadRequest,"Error occured while decoding the json",err);
-		return;
-	}
-
-	response, err := controller.UserService.SignUp(payload.Name, payload.Email, payload.Password)
+	response, err := controller.UserService.SignUp(payload)
 
 	if err != nil {
 		status:=http.StatusInternalServerError

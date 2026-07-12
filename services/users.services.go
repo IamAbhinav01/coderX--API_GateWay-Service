@@ -2,11 +2,12 @@ package services
 
 import (
 	"Coderx/DB/repositories"
+	"Coderx/dtos"
 	"fmt"
 )
 
 type UserService interface {
-	SignUp(_name string, email string, password string)(int,error)
+	SignUp(payload dtos.SignupRequestDTO)(int,error)
 }
 
 type UserServiceImp struct {
@@ -19,9 +20,9 @@ func NewService(_repo repositories.UserRepository) UserService{
 	}
 }
 
-func (user *UserServiceImp) SignUp(_name string, email string, password string) (int,error){
+func (user *UserServiceImp) SignUp(payload dtos.SignupRequestDTO) (int,error){
 
-	response , err:= user.repo.Create(_name,email,password)
+	response , err:= user.repo.Create(payload.Name,payload.Email,payload.Password)
 
 	if err != nil{
 		fmt.Println("Error while forwarding request from service to repository")
