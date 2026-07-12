@@ -20,6 +20,8 @@ func NewController(_user_service services.UserService) *UserController{
 func (controller *UserController) SignUp(w http.ResponseWriter, r *http.Request) {
 
 
+	
+
 	response, err := controller.UserService.SignUp("Abhinav", "abhinavsunil72@gmail.com", "abhinavs784d")
 
 	if err != nil {
