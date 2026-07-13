@@ -21,3 +21,12 @@ func DecodeFROMJSON(r *http.Request,result any) error{
 	
 	return decoder.Decode(result)
 }
+
+
+func Marshall(data any) ([]byte,error){
+	return json.Marshal(data)
+}
+
+func UnMarshall(data []byte,v any) error{
+	return json.Unmarshal(data,v)
+}
