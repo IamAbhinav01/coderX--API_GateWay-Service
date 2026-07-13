@@ -12,6 +12,7 @@ import (
 
 type ArgonHandlers interface{
 	HashPassword(password string) string
+	VerifyPassword(Hashpassword string , providedPassword string) (bool,error)
 }
 
 type Argon2Configs struct{
@@ -89,6 +90,13 @@ func (config *Argon2Configs) HashPassword(password string) (string,error) {
 	return encodeHash,nil
 }
 
+func (config *Argon2Configs) VerifyPassword(Hashpassword string , providedPassword string) (bool,error){
+
+
+	computedHash = argon2.IDKey([] byte(providedPassword),config.Salt,config.TimeCost,config.MemoryCost,config.Threads,config.KeyLength)
+
+	
+}
 
 // func main(){
 // 	config, err := NewArgonConfig()
