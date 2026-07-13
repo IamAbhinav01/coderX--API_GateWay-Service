@@ -10,39 +10,38 @@ import (
 
 
 func Load() {
-	err:=godotenv.Load()
-	if err != nil{
-		fmt.Println( "error while loading the dotenv ,",err)
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("error while loading the dotenv,", err)
 	}
-	fmt.Println("Sucessfully loaded the env")
 }
 
-func init(){
+func init() {
 	godotenv.Load()
 }
 
-
 func GetString(config_name string) string {
-	value,ok := os.LookupEnv(config_name)
-	
-	if !ok{
-		fmt.Println( "Error happend while checking the string in env ")
+	godotenv.Load()
+	value, ok := os.LookupEnv(config_name)
+
+	if !ok {
+		return "env: missing required key"
 	}
 
 	return value
 }
 
-func GetInt(config_name string) int{
+func GetInt(config_name string) int {
+	godotenv.Load()
+	value, ok := os.LookupEnv(config_name)
 
-	value,ok := os.LookupEnv(config_name)
-
-	if !ok{
-		fmt.Println("Error while checking int in env")
+	if !ok {
+		return 0
 	}
-	intValue,err:=strconv.Atoi(value)
-	
-	if err!= nil{
-		fmt.Println("error while converting to integer")
+
+	intValue, err := strconv.Atoi(value)
+	if err != nil {
+		return 0
 	}
 
 	return intValue
