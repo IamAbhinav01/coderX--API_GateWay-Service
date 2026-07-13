@@ -52,3 +52,9 @@ func (store * SessionManager) Get(ctx context.Context,sessionId string) (map[str
 	return data,err
 
 }
+
+func (store *SessionManager) Destroy(ctx context.Context,sessionId string) error{
+
+	return store.redis_client.Del(ctx,"session:"+sessionId).Err()
+
+}
