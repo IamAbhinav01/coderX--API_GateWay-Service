@@ -16,11 +16,25 @@ func InitDB() (*sql.DB, error){
 	cfg.Addr = env.GetString("DB_Addr")
 	cfg.DBName = env.GetString("DBName")
 
+	if cfg.User == "" {
+		return nil, fmt.Errorf("missing required env DBUSER")
+	}
+	if cfg.Passwd == "" {
+		return nil, fmt.Errorf("missing required env DBPASS")
+	}
+	if cfg.Net == "" {
+		return nil, fmt.Errorf("missing required env DB_Net")
+	}
+	if cfg.Addr == "" {
+		return nil, fmt.Errorf("missing required env DB_Addr")
+	}
+	if cfg.DBName == "" {
+		return nil, fmt.Errorf("missing required env DBName")
+	}
 
 	DB, err := sql.Open("mysql", cfg.FormatDSN())
 
 	if err != nil {
-		fmt.Println("Error initializing database:", err)
 		return nil, err
 	}
 

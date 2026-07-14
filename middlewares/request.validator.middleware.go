@@ -9,27 +9,31 @@ import (
 	"net/http"
 )
 
-func SingUpRequestValidation(next http.Handler) http.Handler{
+type contextKey string
+
+const PayloadContextKey contextKey = "payload"
+
+func SignUpRequestValidation(next http.Handler) http.Handler{
 
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 
 			var payload dtos.SignupRequestDTO
-			err:=json.DecodeFROMJSON(r,&payload)
+			err := json.DecodeFROMJSON(r, &payload)
 
-			if err != nil{
+			if err != nil {
 				formatters.ErrorResponse(w,http.StatusBadRequest,"Error occured while decoding the json",err)
 				return 
 			}
 
-			validationErr:=validators.Validate.Struct(payload)
+			validationErr := validators.Validate.Struct(payload)
 
-			if validationErr!= nil{
+			if validationErr != nil {
 				formatters.ErrorResponse(w,http.StatusBadRequest,"Invalid Request Payload",validationErr)
 				return 
 			}
 			reqContext := r.Context()
-			ctx:=context.WithValue(reqContext,"payload",payload)
+			ctx := context.WithValue(reqContext, PayloadContextKey, payload)
 			
 			
 			
