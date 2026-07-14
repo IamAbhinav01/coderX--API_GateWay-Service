@@ -13,7 +13,7 @@ import (
 
 
 type ArgonHandlers interface{
-	HashPassword(password string) string
+	HashPassword(password string) (string,error)
 	VerifyPassword(Hashpassword string , providedPassword string) (bool,error)
 }
 
@@ -106,21 +106,61 @@ func parseArgon2Hash(Hashpassword string) (*Argon2Configs,error){
 		return nil,fmt.Errorf("unsupported algorithm variant")
 	}
 
+	var version int
+	fmt.Sscanf(componenets[2], "v=%d", &version)
+
+	if version != argon2.Version{
+		fmt.Printf("unsupported argon2 version")
+		return nil,fmt.Errorf("unsupported argon2 version")
+	}
+
+
+
+
+	config:= &Argon2Configs{}
+
+	_,cerr:=fmt.Sscanf(componenets[3], "m=%d,t=%d,p=%d", 
+        &config.MemoryCost, &config.TimeCost, &config.Threads)
+
+	if cerr!= nil{
+		return nil,cerr
+	}
+
+	salt,err := base64.RawStdEncoding.DecodeString(componenets[4])
+
+	if err != nil{
+		fmt.Printf("salt decoding failed")
+		return nil,err
+	}
+
+	config.Salt = salt
+
+	hash,Hasherr := base64.RawStdEncoding.DecodeString(componenets[5])
+
+	if Hasherr!= nil{
+		fmt.Println("hash decoding failed")
+		return nil,Hasherr
+	}
+
+	config.HashRaw = hash
+	config.KeyLength = uint32(len(hash))
+
+	return config,nil
 	
 }
 
 func (config *Argon2Configs) VerifyPassword(Hashpassword string , providedPassword string) (bool,error){
 
-	config , err := parseArgon2Hash(Hashpassword)
+	parsedConfig , err := parseArgon2Hash(Hashpassword)
 
 	if err!= nil{
 		fmt.Println("Error happend while parsing the password")
 		return false,err
 	}
 
-	computedHash := argon2.IDKey([] byte(providedPassword),config.Salt,config.TimeCost,config.MemoryCost,config.Threads,config.KeyLength)
+	computedHash := argon2.IDKey([] byte(providedPassword),parsedConfig.Salt,parsedConfig.TimeCost,parsedConfig.MemoryCost,parsedConfig.Threads,parsedConfig.KeyLength)
 
-	match := subtle.ConstantTimeCompare(computedHash,config.HashRaw) == 1
+	match := subtle.ConstantTimeCompare(computedHash,parsedConfig.HashRaw) == 1
 
 	return match,nil
 }
