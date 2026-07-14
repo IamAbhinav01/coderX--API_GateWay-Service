@@ -3,8 +3,10 @@ package security
 import (
 	"Coderx/config/env"
 	"crypto/rand"
+	"crypto/subtle"
 	"encoding/base64"
 	"fmt"
+	"strings"
 
 	"golang.org/x/crypto/argon2"
 )
@@ -12,6 +14,7 @@ import (
 
 type ArgonHandlers interface{
 	HashPassword(password string) string
+	VerifyPassword(Hashpassword string , providedPassword string) (bool,error)
 }
 
 type Argon2Configs struct{
@@ -89,6 +92,38 @@ func (config *Argon2Configs) HashPassword(password string) (string,error) {
 	return encodeHash,nil
 }
 
+func parseArgon2Hash(Hashpassword string) (*Argon2Configs,error){
+	
+	componenets := strings.Split( Hashpassword, "$")
+
+	if len(componenets) != 6{
+		fmt.Printf("Invalid Password Hash format")
+		return nil,fmt.Errorf("invalid hash format structure")
+	}
+
+	if !strings.HasPrefix(componenets[1],"argon2id"){
+		fmt.Printf("unsupported algorithm variant")
+		return nil,fmt.Errorf("unsupported algorithm variant")
+	}
+
+	
+}
+
+func (config *Argon2Configs) VerifyPassword(Hashpassword string , providedPassword string) (bool,error){
+
+	config , err := parseArgon2Hash(Hashpassword)
+
+	if err!= nil{
+		fmt.Println("Error happend while parsing the password")
+		return false,err
+	}
+
+	computedHash := argon2.IDKey([] byte(providedPassword),config.Salt,config.TimeCost,config.MemoryCost,config.Threads,config.KeyLength)
+
+	match := subtle.ConstantTimeCompare(computedHash,config.HashRaw) == 1
+
+	return match,nil
+}
 
 // func main(){
 // 	config, err := NewArgonConfig()
