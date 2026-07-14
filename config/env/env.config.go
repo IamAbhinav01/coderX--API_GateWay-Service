@@ -1,38 +1,26 @@
 package env
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 
 	"github.com/joho/godotenv"
 )
 
-
-func Load() {
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("error while loading the dotenv,", err)
-	}
+func Load() error {
+	return godotenv.Load()
 }
 
 func init() {
-	godotenv.Load()
+	_ = godotenv.Load()
 }
 
 func GetString(config_name string) string {
-	godotenv.Load()
-	value, ok := os.LookupEnv(config_name)
-
-	if !ok {
-		return "env: missing required key"
-	}
-
+	value, _ := os.LookupEnv(config_name)
 	return value
 }
 
 func GetInt(config_name string) int {
-	godotenv.Load()
 	value, ok := os.LookupEnv(config_name)
 
 	if !ok {

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"Coderx/dtos"
+	"Coderx/middlewares"
 	"Coderx/services"
 	"Coderx/utils/formatters"
 
@@ -21,7 +22,7 @@ func NewController(_user_service services.UserService) *UserController{
 
 func (controller *UserController) SignUp(w http.ResponseWriter, r *http.Request) {
 
-	payload := r.Context().Value("payload").(dtos.SignupRequestDTO)
+	payload := r.Context().Value(middlewares.PayloadContextKey).(dtos.SignupRequestDTO)
 
 	response, err := controller.UserService.SignUp(payload)
 
