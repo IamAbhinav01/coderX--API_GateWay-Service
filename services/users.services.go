@@ -3,6 +3,7 @@ package services
 import (
 	"Coderx/DB/repositories"
 	"Coderx/dtos"
+	"Coderx/security"
 	"fmt"
 )
 
@@ -22,7 +23,22 @@ func NewService(_repo repositories.UserRepository) UserService{
 
 func (user *UserServiceImp) SignUp(payload dtos.SignupRequestDTO) (int,error){
 
-	response , err:= user.repo.Create(payload.Name,payload.Email,payload.Password)
+	config,configErr := security.NewArgonConfig()
+
+	if configErr != nil{
+		fmt.Printf("Error occured while configuring the security parameters")
+		return 0,configErr
+	}
+
+	hashedPassword , hashErr := config.HashPassword(payload.Password)
+
+	if hashErr != nil{
+		fmt.Printf("Error Occured while hashing the password")
+		return 0,hashErr
+	}
+
+
+	response , err:= user.repo.Create(payload.Name,payload.Email,hashedPassword)
 
 	if err != nil{
 		fmt.Println("Error while forwarding request from service to repository")

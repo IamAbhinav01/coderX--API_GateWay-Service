@@ -114,9 +114,6 @@ func parseArgon2Hash(Hashpassword string) (*Argon2Configs,error){
 		return nil,fmt.Errorf("unsupported argon2 version")
 	}
 
-
-
-
 	config:= &Argon2Configs{}
 
 	_,cerr:=fmt.Sscanf(componenets[3], "m=%d,t=%d,p=%d", 
