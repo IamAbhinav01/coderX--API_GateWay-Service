@@ -1,0 +1,43 @@
+package session
+
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"github.com/google/uuid"
+)
+
+type Session struct {
+	Id   string
+	Data map[string]string
+}
+
+type SessionManager struct {
+	store SessionStore
+}
+
+func NewSessionManager(store SessionStore) *SessionManager {
+	return &SessionManager{
+		store: store,
+	}
+}
+
+func (sm *SessionManager) Migrate(ctx context.Context,oldSession *Session) error{
+
+	if oldSession.Id != ""{
+
+		err:=sm.store.Destroy(ctx,oldSession.Id)
+
+		if err != nil{
+			fmt.Println("Error occured while destroying the session")
+		}
+
+		return err
+
+	}
+
+	oldSession.Id = uuid.New().String()
+
+	return sm.store.Save(ctx,oldSession.Id,oldSession.Data,24*time.Hour)
+}

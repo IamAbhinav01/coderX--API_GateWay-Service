@@ -10,51 +10,51 @@ import (
 )
 
 type SessionStore interface {
-	Save(ctx context.Context,sessionId string,data map[string]string,expiry time.Duration) error
-	Get(ctx context.Context,sessionId string) (map[string]string,error)
-	Destroy(ctx context.Context,sessionId string) error
+	Save(ctx context.Context, sessionId string, data map[string]string, expiry time.Duration) error
+	Get(ctx context.Context, sessionId string) (map[string]string, error)
+	Destroy(ctx context.Context, sessionId string) error
 }
 
-type SessionManager struct{
+type RedisSessionStore struct {
 	redis_client *redis.Client
 }
 
-func NewSessionStore(redis_client *redis.Client) *SessionManager{
-	return &SessionManager{
+func NewSessionStore(redis_client *redis.Client) *RedisSessionStore {
+	return &RedisSessionStore{
 		redis_client: redis_client,
 	}
 }
 
-func( store *SessionManager) save(ctx context.Context,sessionId string,data map[string]string,expiry time.Duration) error{
+func (store *RedisSessionStore) save(ctx context.Context, sessionId string, data map[string]string, expiry time.Duration) error {
 
-	bytes,err := json.Marshall(data)
+	bytes, err := json.Marshall(data)
 
-	if err != nil{
+	if err != nil {
 		fmt.Println("Error Happend while Marshalling data")
 		return err
 	}
 
-	return store.redis_client.Set(ctx,"session:"+sessionId,bytes,expiry).Err()
+	return store.redis_client.Set(ctx, "session:"+sessionId, bytes, expiry).Err()
 
 }
 
-func (store * SessionManager) Get(ctx context.Context,sessionId string) (map[string]string,error){
+func (store *RedisSessionStore) Get(ctx context.Context, sessionId string) (map[string]string, error) {
 
-	bytes,err := store.redis_client.Get(ctx,"session:"+sessionId).Bytes()
+	bytes, err := store.redis_client.Get(ctx, "session:"+sessionId).Bytes()
 
-	if err != nil{
+	if err != nil {
 		fmt.Println("Error occured while retrieved data from redis")
-		return nil,err
+		return nil, err
 	}
 
 	var data map[string]string
-	err = json.UnMarshall(bytes,&data)
-	return data,err
+	err = json.UnMarshall(bytes, &data)
+	return data, err
 
 }
 
-func (store *SessionManager) Destroy(ctx context.Context,sessionId string) error{
+func (store *RedisSessionStore) Destroy(ctx context.Context, sessionId string) error {
 
-	return store.redis_client.Del(ctx,"session:"+sessionId).Err()
+	return store.redis_client.Del(ctx, "session:"+sessionId).Err()
 
 }
