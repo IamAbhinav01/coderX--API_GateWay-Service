@@ -29,16 +29,18 @@ func (op *UserRepositoryImpl) Create(_name string,email string,password string) 
 		return 0,err
 	}
 
-	response,rowErr:=output.RowsAffected()
+	_,rowErr:=output.RowsAffected()
+	response,inserErr := output.LastInsertId()
+
+	if inserErr!= nil{
+		fmt.Println("Erro happend while returning user id from db")
+		return 0,inserErr
+	}
+
 
 	if rowErr!= nil{
 		fmt.Printf("Error happend while checking number of rows affected")
 		return 0,rowErr
-	}
-
-	if response == 0{
-		fmt.Printf("No rows where affected , Error occured while checking")
-		return 0,nil
 	}
 
 	fmt.Printf("Succesfully added user to database")

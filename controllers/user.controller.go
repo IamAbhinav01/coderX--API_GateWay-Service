@@ -5,6 +5,7 @@ import (
 	"Coderx/middlewares"
 	"Coderx/services"
 	"Coderx/utils/formatters"
+	"Coderx/utils/session"
 
 	"net/http"
 	"strings"
@@ -12,11 +13,13 @@ import (
 
 type UserController struct {
 	UserService services.UserService
+	SessionManager *session.SessionManager
 }
 
-func NewController(_user_service services.UserService) *UserController{
+func NewController(_user_service services.UserService, _sm *session.SessionManager) *UserController{
 	return &UserController{
 		UserService: _user_service,
+		SessionManager: _sm,
 	}
 }
 
@@ -34,6 +37,9 @@ func (controller *UserController) SignUp(w http.ResponseWriter, r *http.Request)
 		formatters.ErrorResponse(w,status,"Error occured while signing the user",err)
 		return
 	}
+
+	
+
 	formatters.SuccessResponse(w,http.StatusCreated,"User sign-up successfully",response)
 
 

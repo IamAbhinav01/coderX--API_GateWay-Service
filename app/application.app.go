@@ -7,10 +7,13 @@ import (
 	"Coderx/controllers"
 	"Coderx/router"
 	"Coderx/services"
+	"Coderx/utils/session"
 	"fmt"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/redis/go-redis/v9"
 )
 
 type Application struct {
@@ -35,9 +38,18 @@ func (app *Application) Run() error {
 
 	fmt.Println("Database initialized successfully")
 
+	var redisClient *redis.Client
+	
+	redisClient = redis.NewClient(&redis.Options{
+		Addr: env.GetString("REDIS_ADDR"),
+	})
+
+	sessionStore := session.NewSessionStore(redisClient)
+	sessionManager := session.NewSessionManager(sessionStore)
+
 	user_repository := repositories.NewUserRepository(DB)
 	user_service := services.NewService(user_repository)
-	user_controller := controllers.NewController(user_service)
+	user_controller := controllers.NewController(user_service,sessionManager)
 	fmt.Println("User controller initialized")
 
 	// Set up router with chi
