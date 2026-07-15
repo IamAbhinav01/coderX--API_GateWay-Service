@@ -25,7 +25,7 @@ func NewSessionStore(redis_client *redis.Client) *RedisSessionStore {
 	}
 }
 
-func (store *RedisSessionStore) save(ctx context.Context, sessionId string, data map[string]string, expiry time.Duration) error {
+func (store *RedisSessionStore) Save(ctx context.Context, sessionId string, data map[string]string, expiry time.Duration) error {
 
 	bytes, err := json.Marshall(data)
 
