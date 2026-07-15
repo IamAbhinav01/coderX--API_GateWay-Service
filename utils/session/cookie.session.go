@@ -23,21 +23,23 @@ func NewSessionManager(store SessionStore) *SessionManager {
 	}
 }
 
-func (sm *SessionManager) Migrate(ctx context.Context,oldSession *Session) error{
+func (sm *SessionManager) Store() SessionStore{
+	return sm.store
+}
 
-	if oldSession.Id != ""{
+func (sm *SessionManager) Migrate(ctx context.Context, oldSession *Session) error {
 
-		err:=sm.store.Destroy(ctx,oldSession.Id)
+	if oldSession.Id != "" {
 
-		if err != nil{
+		err := sm.store.Destroy(ctx, oldSession.Id)
+
+		if err != nil {
 			fmt.Println("Error occured while destroying the session")
 		}
-
-		return err
 
 	}
 
 	oldSession.Id = uuid.New().String()
 
-	return sm.store.Save(ctx,oldSession.Id,oldSession.Data,24*time.Hour)
+	return sm.store.Save(ctx, oldSession.Id, oldSession.Data, 24*time.Hour)
 }
