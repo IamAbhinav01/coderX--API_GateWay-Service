@@ -6,6 +6,7 @@ import (
 	"Coderx/services"
 	"Coderx/utils/formatters"
 	"Coderx/utils/session"
+	"strconv"
 
 	"net/http"
 	"strings"
@@ -38,7 +39,26 @@ func (controller *UserController) SignUp(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	
+	userSession := &session.Session{
+		Data: map[string]string{
+			"user_id": strconv.Itoa(response),
+			"email":payload.Email,
+		},
+	}
+
+	err = controller.SessionManager.Migrate(r.Context(),userSession)
+	if err == nil{
+		cookie:= &http.Cookie{
+			Name: "session_id",
+			Value: userSession.Id,
+			Path: "/",
+			MaxAge: 86400,
+			HttpOnly: true,
+			Secure: true,
+			SameSite: http.SameSiteStrictMode,
+		}
+		http.SetCookie(w,cookie)
+	}
 
 	formatters.SuccessResponse(w,http.StatusCreated,"User sign-up successfully",response)
 
