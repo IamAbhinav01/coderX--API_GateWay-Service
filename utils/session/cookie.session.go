@@ -43,3 +43,4 @@ func (sm *SessionManager) Migrate(ctx context.Context, oldSession *Session) erro
 
 	return sm.store.Save(ctx, oldSession.Id, oldSession.Data, 24*time.Hour)
 }
+
