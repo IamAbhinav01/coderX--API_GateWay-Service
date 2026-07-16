@@ -68,16 +68,40 @@ func (controller *UserController) SignUp(w http.ResponseWriter, r *http.Request)
 func (contoller *UserController) Login(w http.ResponseWriter,r *http.Request){
 
 
+	
+
+
 	payload := r.Context().Value(middlewares.PayloadContextKey).(dtos.LoginRequestDTO)
 	
 	response,err:=contoller.UserService.Login(payload)
 
 	if err != nil {
-		status:=http.StatusInternalServerError
-		if strings.Contains(strings.ToLower(err.Error()),"duplicate") || strings.Contains(err.Error(), "1062"){
-			status = http.StatusConflict
+		formatters.ErrorResponse(w, http.StatusUnauthorized, "Invalid email or password", err)
+		return
+	}
+
+
+	user_session := &session.Session{
+		Data: map[string]string{
+			"user_id":strconv.Itoa(response),
+			"email":payload.Email,
+		},
+	}
+
+	err = contoller.SessionManager.Migrate(r.Context(),user_session)
+	if err == nil{
+		cookie := &http.Cookie{
+			Name:     "session_id",
+			Value:    user_session.Id,
+			Path:     "/",
+			MaxAge:   86400,
+			HttpOnly: true,
+			Secure:   true,
+			SameSite: http.SameSiteStrictMode,
 		}
-		formatters.ErrorResponse(w,status,"Error occured while logging in the user",err)
+		http.SetCookie(w, cookie)
+	}else{
+		formatters.ErrorResponse(w,http.StatusInternalServerError,"Failed to create session",err)
 		return
 	}
 
