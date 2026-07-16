@@ -7,6 +7,7 @@ import (
 	"Coderx/utils/formatters"
 	"Coderx/utils/session"
 	"strconv"
+	"time"
 
 	"net/http"
 	"strings"
@@ -67,20 +68,76 @@ func (controller *UserController) SignUp(w http.ResponseWriter, r *http.Request)
 
 func (contoller *UserController) Login(w http.ResponseWriter,r *http.Request){
 
+	//PREEVENTIG TIMELY ATTACKS
 
-	payload := dtos.LoginRequestDTO{Email:"xxx.xom",Password:"xxx"}
+	const loggedInDuration =  1 * time.Second
+	startTime := time.Now()
+	defer func() {
+		elapsed := time.Since(startTime)
+		if elapsed < loggedInDuration {
+			time.Sleep(loggedInDuration - elapsed)
+		}
+	}()
+
+	payload := r.Context().Value(middlewares.PayloadContextKey).(dtos.LoginRequestDTO)
 	
 	response,err:=contoller.UserService.Login(payload)
 
 	if err != nil {
-		status:=http.StatusInternalServerError
-		if strings.Contains(strings.ToLower(err.Error()),"duplicate") || strings.Contains(err.Error(), "1062"){
-			status = http.StatusConflict
+		formatters.ErrorResponse(w, http.StatusUnauthorized, "Invalid email or password", err)
+		return
+	}
+
+
+	user_session := &session.Session{
+		Data: map[string]string{
+			"user_id":strconv.Itoa(response),
+			"email":payload.Email,
+		},
+	}
+
+	err = contoller.SessionManager.Migrate(r.Context(),user_session)
+	if err == nil{
+		cookie := &http.Cookie{
+			Name:     "session_id",
+			Value:    user_session.Id,
+			Path:     "/",
+			MaxAge:   86400,
+			HttpOnly: true,
+			Secure:   true,
+			SameSite: http.SameSiteStrictMode,
 		}
-		formatters.ErrorResponse(w,status,"Error occured while logging in the user",err)
+		http.SetCookie(w, cookie)
+	}else{
+		formatters.ErrorResponse(w,http.StatusInternalServerError,"Failed to create session",err)
 		return
 	}
 
 	formatters.SuccessResponse(w,http.StatusAccepted,"User Logged-In successfully",response)
 
+}
+
+func (controller *UserController) Greetings(w http.ResponseWriter,r *http.Request){
+	formatters.SuccessResponse(w,http.StatusAccepted,"Welcome to protected ROUTE",nil)
+}
+func (contoller *UserController) LogOut(w http.ResponseWriter,r *http.Request){
+
+	cookie,err:= r.Cookie("session_id")
+
+	if err == nil{
+		_= contoller.SessionManager.Store().Destroy(r.Context(),cookie.Value)
+	}
+
+	DeletedCookie := &http.Cookie{
+		Name: "session_id",
+		Value: "",
+		Path: "/",
+		MaxAge: -1,
+		HttpOnly: true,
+		Secure: true,
+		SameSite: http.SameSiteStrictMode,
+	}
+	http.SetCookie(w,DeletedCookie)
+
+	formatters.SuccessResponse(w,http.StatusAccepted,"Logged-OUT successfully",nil)
 }
