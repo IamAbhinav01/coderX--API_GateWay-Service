@@ -7,6 +7,7 @@ import (
 	"Coderx/utils/formatters"
 	"Coderx/utils/session"
 	"strconv"
+	"time"
 
 	"net/http"
 	"strings"
@@ -67,9 +68,16 @@ func (controller *UserController) SignUp(w http.ResponseWriter, r *http.Request)
 
 func (contoller *UserController) Login(w http.ResponseWriter,r *http.Request){
 
+	//PREEVENTIG TIMELY ATTACKS
 
-	
-
+	const loggedInDuration =  1 * time.Second
+	startTime := time.Now()
+	defer func() {
+		elapsed := time.Since(startTime)
+		if elapsed < loggedInDuration {
+			time.Sleep(loggedInDuration - elapsed)
+		}
+	}()
 
 	payload := r.Context().Value(middlewares.PayloadContextKey).(dtos.LoginRequestDTO)
 	
