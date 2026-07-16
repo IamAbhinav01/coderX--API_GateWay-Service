@@ -68,7 +68,7 @@ func (controller *UserController) SignUp(w http.ResponseWriter, r *http.Request)
 func (contoller *UserController) Login(w http.ResponseWriter,r *http.Request){
 
 
-	payload := dtos.LoginRequestDTO{Email:"xxx.xom",Password:"xxx"}
+	payload := r.Context().Value(middlewares.PayloadContextKey).(dtos.LoginRequestDTO)
 	
 	response,err:=contoller.UserService.Login(payload)
 
