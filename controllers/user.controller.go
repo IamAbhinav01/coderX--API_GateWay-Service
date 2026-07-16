@@ -65,3 +65,22 @@ func (controller *UserController) SignUp(w http.ResponseWriter, r *http.Request)
 
 }
 
+func (contoller *UserController) Login(w http.ResponseWriter,r *http.Request){
+
+
+	payload := dtos.LoginRequestDTO{Email:"xxx.xom",Password:"xxx"}
+	
+	response,err:=contoller.UserService.Login(payload)
+
+	if err != nil {
+		status:=http.StatusInternalServerError
+		if strings.Contains(strings.ToLower(err.Error()),"duplicate") || strings.Contains(err.Error(), "1062"){
+			status = http.StatusConflict
+		}
+		formatters.ErrorResponse(w,status,"Error occured while logging in the user",err)
+		return
+	}
+
+	formatters.SuccessResponse(w,http.StatusAccepted,"User Logged-In successfully",response)
+
+}

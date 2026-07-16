@@ -1,12 +1,14 @@
 package repositories
 
 import (
+	"Coderx/schema"
 	"database/sql"
 	"fmt"
 )
 
 type UserRepository interface {
 	Create(_name string,email string,password string)(int,error)
+	GetCredentialByEmail(email string) (*schema.User,error)
 }
 
 type UserRepositoryImpl struct {
@@ -46,5 +48,23 @@ func (op *UserRepositoryImpl) Create(_name string,email string,password string) 
 	fmt.Printf("Succesfully added user to database")
 
 	return int(response),nil
+
+}
+
+func (op *UserRepositoryImpl) GetCredentialByEmail(email string) (*schema.User,error){
+
+	user := schema.User{}
+
+	query:= `select id, password from users where email = ?`
+
+	err := op.db.QueryRow(query,email).Scan(&user.ID,&user.Password)
+	if err != nil{
+		if err == sql.ErrNoRows{
+			return nil, fmt.Errorf("user not found")
+		}
+		fmt.Printf("Error fetching user by email: %v\n", err)
+		return nil, err
+	}
+	return &user,nil
 
 }

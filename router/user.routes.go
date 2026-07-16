@@ -10,5 +10,6 @@ import (
 func RegisterUserRoutes(r chi.Router, userController *controllers.UserController) {
 
 	r.With(middlewares.SignUpRequestValidation).Post("/SignUp", userController.SignUp)
+	r.Post("/Login",userController.Login)
 
 }
