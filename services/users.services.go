@@ -9,6 +9,7 @@ import (
 
 type UserService interface {
 	SignUp(payload dtos.SignupRequestDTO)(int,error)
+	Login(payload dtos.LoginRequestDTO)(int ,error)
 }
 
 type UserServiceImp struct {
@@ -45,5 +46,28 @@ func (user *UserServiceImp) SignUp(payload dtos.SignupRequestDTO) (int,error){
 		return 0,err
 	}
 	return response,nil
+}
+
+func (user *UserServiceImp) Login(payload dtos.LoginRequestDTO)(int,error){
+
+	config,configErr := security.NewArgonConfig()
+
+	if configErr != nil{
+		fmt.Printf("Error occured while configuring the security parameters")
+		return 0,configErr
+	}
+	
+	userData,err := user.repo.GetCredentialByEmail(payload.Email)
+
+	if err != nil{
+		return 0, fmt.Errorf("invalid credentials") 
+	}
+
+	match, err := config.VerifyPassword(userData.Password,payload.Password)
+	if err != nil || !match {
+		return 0, fmt.Errorf("invalid credentials") 
+	}
+
+	return userData.ID, nil
 }
 

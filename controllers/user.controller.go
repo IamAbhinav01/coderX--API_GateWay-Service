@@ -6,6 +6,7 @@ import (
 	"Coderx/services"
 	"Coderx/utils/formatters"
 	"Coderx/utils/session"
+	"fmt"
 	"strconv"
 
 	"net/http"
@@ -65,3 +66,10 @@ func (controller *UserController) SignUp(w http.ResponseWriter, r *http.Request)
 
 }
 
+func (contoller *UserController) Login(w http.ResponseWriter,r *http.Request){
+
+
+	payload := r.Context().Value(middlewares.PayloadContextKey).(dtos.LoginRequestDTO)
+	fmt.Println(payload)
+
+}
