@@ -53,7 +53,7 @@ func (app *Application) Run() error {
 	fmt.Println("User controller initialized")
 
 	// Set up router with chi
-	appRouter := router.SetUpRouter(user_controller)
+	appRouter := router.SetUpRouter(user_controller,sessionManager)
 
 	// Format port address
 	addr := app.Config

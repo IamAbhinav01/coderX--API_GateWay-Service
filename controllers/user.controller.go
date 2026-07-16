@@ -116,3 +116,7 @@ func (contoller *UserController) Login(w http.ResponseWriter,r *http.Request){
 	formatters.SuccessResponse(w,http.StatusAccepted,"User Logged-In successfully",response)
 
 }
+
+func (controller *UserController) Greetings(w http.ResponseWriter,r *http.Request){
+	formatters.SuccessResponse(w,http.StatusAccepted,"Welcome to protected ROUTE",nil)
+}
