@@ -13,4 +13,5 @@ func RegisterUserRoutes(r chi.Router, userController *controllers.UserController
 	r.With(middlewares.SignUpRequestValidation).Post("/SignUp", userController.SignUp)
 	r.With(middlewares.LoginRequestValidation).Post("/Login",userController.Login)
 	r.With(middlewares.AuthMiddleware(sm)).Get("/greet",userController.Greetings)
+	r.With(middlewares.AuthMiddleware(sm)).Post("/LogOut",userController.LogOut)
 }

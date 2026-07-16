@@ -120,3 +120,24 @@ func (contoller *UserController) Login(w http.ResponseWriter,r *http.Request){
 func (controller *UserController) Greetings(w http.ResponseWriter,r *http.Request){
 	formatters.SuccessResponse(w,http.StatusAccepted,"Welcome to protected ROUTE",nil)
 }
+func (contoller *UserController) LogOut(w http.ResponseWriter,r *http.Request){
+
+	cookie,err:= r.Cookie("session_id")
+
+	if err == nil{
+		_= contoller.SessionManager.Store().Destroy(r.Context(),cookie.Value)
+	}
+
+	DeletedCookie := &http.Cookie{
+		Name: "session_id",
+		Value: "",
+		Path: "/",
+		MaxAge: -1,
+		HttpOnly: true,
+		Secure: true,
+		SameSite: http.SameSiteStrictMode,
+	}
+	http.SetCookie(w,DeletedCookie)
+
+	formatters.SuccessResponse(w,http.StatusAccepted,"Logged-OUT successfully",nil)
+}
